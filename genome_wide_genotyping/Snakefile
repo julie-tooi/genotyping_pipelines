@@ -1,0 +1,138 @@
+configfile: "config/config.yaml"
+
+reference_graph_vcf = config["graph_vcf"]
+reference_callset_vcf = config["callset_vcf"]
+reference_fasta = config["reference_fasta"]
+input_dir = config["input"]
+output_dir = config["output"]
+threads_number = config["threads"]
+library_type = config["library_type"]
+
+if library_type == "pe":
+    samples, = glob_wildcards(
+       f"{input_dir}/{{sample}}_1.fastq.gz")
+elif library_type == "se":
+    samples, = glob_wildcards(
+       f"{input_dir}/{{sample}}.fastq.gz")
+
+print(samples)
+
+
+rule all:
+    input:
+       expand("{results}/pangenie/{sample}_genotyping.vcf", results=output_dir, sample=samples),
+       expand("{results}/pangenie/{sample}_pangenie_bi_genotyping.vcf.gz", results = output, sample = samples),
+       expand("{results}/pangenie/merged-genotypes_bi.vcf.gz", results = output)
+
+
+rule pangenie_index:
+    """
+    Create index for PanGenie
+    """
+    input:
+       vcf = reference_graph_vcf,
+       fasta = reference_fasta,
+    output:
+       directory("{results}/pangenie/index/")
+    log:
+       "{results}/pangenie/indexing.log"
+    threads: threads_number
+    params:
+       out_prefix = "{results}/pangenie/index/reference_index"
+    shell:
+       """
+       mkdir {output}
+       PanGenie-index -v < (zcat {input.vcf}) -r (zcat {input.fasta}) -o {params.out_prefix} -t {threads} &> {log}
+       """
+
+
+if library_type == "pe":
+
+  rule merge_reads:
+     """
+     Merge forward and reverse reads
+     """
+     input:
+        forward_reads = f"{input_dir}/{{sample}}_1.fastq.gz",
+        reverse_reads = f"{input_dir}/{{sample}}_2.fastq.gz",
+     output:
+        merged_reads = temp("{results}/{sample}_merged.fasta")
+     shell:
+        """
+        zcat {input.forward_reads} {input.reverse_reads} > {output.merged_reads}
+        """
+
+
+  rule pangenie_genotype:
+     """
+     Run genotyping
+     """
+     input:
+        reads = rules.merge_reads.output.merged_reads
+     output:
+        vcf = "{results}/pangenie/{sample}_genotyping.vcf"
+     log:
+        "{results}/pangenie/{sample}_genotyping.log"
+     params:
+        out_prefix = "{results}/pangenie/{sample}_multi",
+        index = "{results}/pangenie/index/reference_index"
+     threads:
+        threads_number
+     shell:
+        """
+        PanGenie -f {params.index} -i {input.reads} -o {params.out_prefix} -t {threads} -j {threads} -s {wildcards.sample} &> {log}
+        """
+
+else:
+
+  rule pangenie_genotype:
+     """
+     Run genotyping
+     """
+     input:
+        reads = rules.merge_reads.output.merged_reads
+     output:
+        vcf = "{results}/pangenie/{sample}_genotyping.vcf"
+     log:
+        "{results}/pangenie/{sample}_genotyping.log"
+     params:
+        out_prefix = "{results}/pangenie/{sample}_multi",
+        index = "{results}/pangenie/index/reference_index"
+     threads:
+        threads_number
+     shell:
+        """
+        PanGenie -f {params.index} -i {input.reads} -o {params.out_prefix} -t {threads} -j {threads} -s {wildcards.sample} &> {log}
+        """
+
+
+rule convert_genotypes_to_biallelic:
+  """
+  Convert genotyped VCF to biallelic representation
+  """
+  input:
+     vcf = rules.pangenie_genotype.output.vcf,
+     biallelic = reference_callset_vcf
+  output:
+     bi = "{results}/pangenie/{sample}_bi_genotyping.vcf.gz",
+     bi_tbi = "{results}/pangenie/{sample}_bi_genotyping.vcf.gz.tbi"
+  shell:
+     """
+     cat {input.vcf} | python3 workflow/scripts/convert-to-biallelic.py {input.biallelic} | bgzip > {output.bi}
+     tabix -p vcf {output.bi}
+     """
+
+
+rule merge_vcfs:
+  """
+  Merges the single-sample VCFs into one multi-sample VCF
+  """
+  input:
+     expand("{{results}}/pangenie/{sample}_bi_genotyping.vcf.gz", sample = samples)
+  output:
+     "{results}/pangenie/merged-genotypes_bi.vcf.gz"
+  shell:
+     """
+     bcftools merge {input} -Oz -o {output}
+     tabix -p vcf {output}
+     """
