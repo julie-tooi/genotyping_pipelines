@@ -1,0 +1,7 @@
+graph_vcf: ""
+callset_vcf: ""
+reference_fasta: ""
+input: ""
+output: ""
+threads: 6
+library_type: "se" # ["se", "pe"]
