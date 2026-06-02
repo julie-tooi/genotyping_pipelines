@@ -1,0 +1,36 @@
+configfile: "config/config.yaml"
+
+REFERENCE_GRAPH_VCF_RAW = config["graph_vcf_raw"]
+REFERENCE_FASTA = config["reference_fasta"]
+LOCI_COORDINATES = config["loci_coordinates"]
+INPUT_DIR = config["input"]
+OUTPUT_DIR = config["output"]
+THREADS_NUMBER = config["threads"]
+LIBRARY_TYPE = config["library_type"]
+INPUT_TYPE = config["input_type"]
+
+if INPUT_TYPE == "fastq":
+    if LIBRARY_TYPE == "pe":
+        samples, = glob_wildcards(
+           f"{INPUT_DIR}/{{sample}}_1.fastq.gz")
+    elif LIBRARY_TYPE == "se":
+        samples, = glob_wildcards(
+           f"{INPUT_DIR}/{{sample}}.fastq.gz")
+elif INPUT_TYPE == "CRAM":
+    samples, = glob_wildcards(
+        f"{INPUT_DIR}/{{sample}}.cram")
+
+print(samples)
+
+
+include: "subpipelines/reference_prep.smk"
+
+if INPUT_TYPE == "fastq":
+    include: "subpipelines/genotyping_with_reads.smk"
+elif INPUT_TYPE == "CRAM":
+    include: "subpipelines/genotyping_with_CRAM.smk"
+
+
+rule all:
+    input:
+        expand("{output}/{sample}/genotypes/", output=OUTPUT_DIR, sample = samples)

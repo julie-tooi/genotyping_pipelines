@@ -1,0 +1,8 @@
+graph_vcf_raw: ""
+reference_fasta: ""
+loci_coordinates: ""
+input: ""
+output: ""
+threads: 6
+library_type: "se" # ["se", "pe"]
+input_type: "fastq" # ["fastq", "CRAM"]
