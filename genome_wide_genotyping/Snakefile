@@ -71,7 +71,7 @@ if LIBRARY_TYPE == "pe":
         forward_reads = f"{INPUT_DIR}/{{sample}}_1.fastq.gz",
         reverse_reads = f"{INPUT_DIR}/{{sample}}_2.fastq.gz"
      output:
-        merged_reads = temp("{output}/samples/{sample}_merged.fasta")
+        merged_reads = temp("{output}/samples/{sample}_merged.fastq")
      shell:
         """
         zcat {input.forward_reads} {input.reverse_reads} > {output.merged_reads}
@@ -106,9 +106,9 @@ else:
         Unzip file with reads
         """
         input:
-            zipped_reads = f"{INPUT_DIR}/{{sample}}.fasta.gz"
+            zipped_reads = f"{INPUT_DIR}/{{sample}}.fastq.gz"
         output:
-            unzipped_reads = temp("{output}/samples/{sample}.fasta")
+            unzipped_reads = temp("{output}/samples/{sample}.fastq")
         shell:
             """
             gunzip -c {input.zipped_reads} > {output.unzipped_reads}
