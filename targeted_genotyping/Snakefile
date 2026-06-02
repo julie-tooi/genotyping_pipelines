@@ -2,6 +2,7 @@ configfile: "config/config.yaml"
 
 REFERENCE_GRAPH_VCF_RAW = config["graph_vcf_raw"]
 REFERENCE_FASTA = config["reference_fasta"]
+REFERENCE_BED = config["reference_bed"]
 LOCI_COORDINATES = config["loci_coordinates"]
 INPUT_DIR = config["input"]
 OUTPUT_DIR = config["output"]
