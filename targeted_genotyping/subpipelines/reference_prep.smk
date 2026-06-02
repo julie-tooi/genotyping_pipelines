@@ -65,14 +65,13 @@ rule create_loci_database:
     input:
         genome_fasta = rules.unzip_reference.output.unzipped_fasta,
         filtered_graph = rules.filter_raw_vcf.output.filtered_graph,
-        jf_counts = rules.count_k_mers_in_reference.output.jf_counts
+        jf_counts = rules.count_k_mers_in_reference.output.jf_counts,
+        loci_coordinates = LOCI_COORDINATES
     output:
         directory("{output}/ref/loci_db/")
-    params:
-        LOCI_COORDINATES
     log:
         "{output}/ref/loci_db.log"
     shell:
         """
-        locityper target -d {output} -v {input.filtered_graph} -r {input.genome_fasta} -j {input.jf_counts} -L {params} &> {log}
+        locityper target -d {output} -v {input.filtered_graph} -r {input.genome_fasta} -j {input.jf_counts} -L {input.loci_coordinates} &> {log}
         """
