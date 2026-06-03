@@ -29,8 +29,7 @@ if LIBRARY_TYPE == "pe":
             forward_reads = f"{INPUT_DIR}/{{sample}}_1.fastq.gz",
             reverse_reads = f"{INPUT_DIR}/{{sample}}_2.fastq.gz",
             loci_database = rules.create_loci_database.output,
-            preprocessed_reads = rules.reads_preprocessing.output,
-            genome_bed = REFERENCE_BED
+            preprocessed_reads = rules.reads_preprocessing.output
         output:
             directory("{output}/{sample}/genotypes/")
         log:
@@ -39,7 +38,7 @@ if LIBRARY_TYPE == "pe":
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} {input.genome_bed} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
+            locityper genotype -O 1 -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """
 
 
@@ -72,8 +71,7 @@ else:
         input:
             reads = f"{INPUT_DIR}/{{sample}}.fastq.gz",
             loci_database = rules.create_loci_database.output,
-            preprocessed_reads = rules.reads_preprocessing.output,
-            genome_bed = REFERENCE_BED
+            preprocessed_reads = rules.reads_preprocessing.output
         output:
             directory("{output}/{sample}/genotypes/")
         log:
@@ -82,5 +80,5 @@ else:
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -i {input.reads} -d {input.loci_database} {input.genome_bed} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
+            locityper genotype -O 1 -i {input.reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """
