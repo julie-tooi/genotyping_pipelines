@@ -12,7 +12,7 @@ if LIBRARY_TYPE == "pe":
             reverse_reads = "{output}/{sample}/reads/{sample}_2.fastq"
         shell:
             """
-            samtools collate -O -u {input.alignment} -T {input.reference}| samtools fastq -1 {output.forward_reads} -2 {output.reverse_reads} -0 /dev/null -s /dev/null
+            samtools collate -O -u {input.alignment} -T {input.reference} | samtools fastq -1 {output.forward_reads} -2 {output.reverse_reads} -0 /dev/null -s /dev/null
             """
 
 
@@ -45,8 +45,7 @@ if LIBRARY_TYPE == "pe":
             forward_reads = rules.separate_aln_to_forward_and_reverse_reads.output.forward_reads,
             reverse_reads = rules.separate_aln_to_forward_and_reverse_reads.output.reverse_reads,
             loci_database = rules.create_loci_database.output,
-            preprocessed_reads = rules.reads_preprocessing.output,
-            genome_bed = REFERENCE_BED
+            preprocessed_reads = rules.reads_preprocessing.output
         output:
             directory("{output}/{sample}/genotypes/")
         log:
@@ -55,7 +54,7 @@ if LIBRARY_TYPE == "pe":
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} {input.genome_bed} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
+            locityper genotype -O 1 -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """
 
 
@@ -98,5 +97,5 @@ else:
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -a {input.alignment} -d {input.loci_database} {input.genome_bed} -p {input.preprocessed_aln} -o {output} --threads {threads} &> {log}
+            locityper genotype -O 1 -a {input.alignment} -d {input.loci_database} --recr-bed {input.genome_bed} -p {input.preprocessed_aln} -o {output} --threads {threads} &> {log}
             """
