@@ -1,6 +1,5 @@
 graph_vcf_raw: ""
 reference_fasta: ""
-reference_bed: ""
 loci_coordinates: ""
 input: ""
 output: ""
