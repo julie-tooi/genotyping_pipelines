@@ -38,7 +38,7 @@ if LIBRARY_TYPE == "pe":
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
+            locityper genotype -i {input.forward_reads} {input.reverse_reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """
 
 
@@ -80,5 +80,5 @@ else:
             THREADS_NUMBER
         shell:
             """
-            locityper genotype -O 1 -i {input.reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
+            locityper genotype -i {input.reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """

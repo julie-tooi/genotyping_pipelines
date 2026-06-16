@@ -52,5 +52,5 @@ rule locityper_genotype:
         THREADS_NUMBER
     shell:
         """
-        locityper genotype -O 1 -a {input.alignment} -d {input.loci_database} -p {input.preprocessed_aln} -o {output} --threads {threads} &> {log}
+        locityper genotype -a {input.alignment} -d {input.loci_database} -p {input.preprocessed_aln} -o {output} --threads {threads} &> {log}
         """
