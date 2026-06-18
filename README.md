@@ -25,6 +25,10 @@
 - python > 3.10
 - snakemake
 - locityper
+- samtools
+- jellyfish
+- vcfbub
+- tabix
 
 #### Reference data
 
