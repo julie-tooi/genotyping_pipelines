@@ -10,9 +10,9 @@ if LIBRARY_TYPE == "pe":
             genome_fasta = rules.unzip_reference.output.unzipped_fasta,
             jf_counts = rules.count_k_mers_in_reference.output.jf_counts
         output:
-            directory("{output}/{sample}/reads_test/")
+            directory("{output}/read_test/{sample}_reads_test/")
         log:
-            "{output}/{sample}/reads_test/reads_preproc.log"
+            "{output}/read_test/{sample}_reads_test/reads_preproc.log"
         threads:
             THREADS_NUMBER
         shell:
@@ -31,9 +31,9 @@ if LIBRARY_TYPE == "pe":
             loci_database = rules.create_loci_database.output,
             preprocessed_reads = rules.reads_preprocessing.output
         output:
-            directory("{output}/{sample}/genotypes/")
+            directory("{output}/genotyping/{sample}/")
         log:
-            "{output}/{sample}/genotypes/genotyping.log"
+            "{output}/genotyping/{sample}_genotyping.log"
         threads:
             THREADS_NUMBER
         shell:
@@ -53,9 +53,9 @@ else:
             genome_fasta = rules.unzip_reference.output.unzipped_fasta,
             jf_counts = rules.count_k_mers_in_reference.output.jf_counts
         output:
-            directory("{output}/{sample}/reads_test/")
+            directory("{output}/read_test/{sample}_reads_test/")
         log:
-            "{output}/{sample}/reads_test/reads_preproc.log"
+            "{output}/read_test/{sample}_reads_test/reads_preproc.log"
         threads:
             THREADS_NUMBER
         shell:
@@ -73,12 +73,28 @@ else:
             loci_database = rules.create_loci_database.output,
             preprocessed_reads = rules.reads_preprocessing.output
         output:
-            directory("{output}/{sample}/genotypes/")
+            directory("{output}/genotyping/{sample}/")
         log:
-            "{output}/{sample}/genotypes/genotyping.log"
+            "{output}/genotyping/{sample}_genotyping.log"
         threads:
             THREADS_NUMBER
         shell:
             """
             locityper genotype -i {input.reads} -d {input.loci_database} -p {input.preprocessed_reads} -o {output} --threads {threads} &> {log}
             """
+
+
+rule convert_output_to_csv:
+    """
+    Convert json output to one merged csv
+    """
+    input:
+        json_output_logs = expand("{{output}}/genotyping/{sample}_genotyping.log",sample = samples)
+    output:
+        csv_output = "{output}/merged-genotypes.csv"
+    params:
+        path_to_input = lambda wildcards: f"{wildcards.output}/genotyping/./*"
+    shell:
+        """
+        python3 scripts/into_csv.py -i {params.path_to_input} -o {output.csv_output}
+        """
