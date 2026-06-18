@@ -67,8 +67,6 @@ rule convert_output_to_csv:
         json_output_logs = expand("{{output}}/genotyping/{sample}_genotyping.log",sample = samples)
     output:
         csv_output = "{output}/merged-genotypes.csv"
-    log:
-        "{output}/genotyping/merging.log"
     params:
         path_to_input = lambda wildcards: f"{wildcards.output}/genotyping/./*"
     shell:
