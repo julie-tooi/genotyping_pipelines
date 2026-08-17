@@ -1,6 +1,7 @@
 configfile: "config/config.yaml"
 
-REFERENCE_GRAPH_VCF_RAW = config["graph_vcf_raw"]
+REFERENCE_ASSEMBLIES = config["hprc_assemblies"]
+ASSEMBLY_ALIASES = config["assembly_aliases"]
 REFERENCE_FASTA = config["reference_fasta"]
 LOCI_COORDINATES = config["loci_coordinates"]
 INPUT_DIR = config["input"]
