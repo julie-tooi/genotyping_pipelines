@@ -39,9 +39,11 @@ Provide gz version to the pipeline.
 
 For fastq files same reference genome as used for PanGenie should be sufficient.
 
-[Pangenome VCF raw](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=pangenomes/scratch/2025_12_23_minigraph_cactus/hprc-v2.1-mc-grch38/hprc-v2.1-mc-grch38.raw.vcf.gz)
+[Pangenome VCF raw](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=pangenomes/scratch/2025_12_23_minigraph_cactus/hprc-v2.1-mc-grch38/hprc-v2.1-mc-grch38.raw.vcf.gz) or [AGC-compressed assemblies](https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/B4174A5F-F20E-4DCF-8470-F8A907B640BC--HPRCv2_0.6.1_pr_agc_submission/HPRC_r2_assemblies_0.6.1.agc)
 
 [Script for json to csv conversion](https://github.com/tprodanov/locityper/blob/main/extra/into_csv.py)
+
+[Script for reference db preparation](https://github.com/tprodanov/locityper/blob/main/extra/extract-targets.sh)
 
 [Additional script for into_csv.py](https://github.com/tprodanov/locityper/blob/main/extra/common.py)
 
