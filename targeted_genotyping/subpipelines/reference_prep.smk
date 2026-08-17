@@ -53,12 +53,14 @@ rule extract_targets:
         ref_fasta = rules.unzip_reference.output.unzipped_fasta,
         loci_coordinates = LOCI_COORDINATES
     output:
-        directory("{output}/ref/extracted_haplotypes/")
+        extracted_targets = "{output}/ref/extracted_haplotypes/targets.bed"
+    params:
+        path_to_haplotypes = "{output}/ref/extracted_haplotypes/"
     log:
         "{output}/ref/extract_haplotypes.log"
     shell:
         """
-        extract-targets.sh -i {input.ref_fasta} -i {input.hprc_assemblies} -n {input.assembly_aliases} -c {input.loci_coordinates} -r {input.ref_fasta} -o {output} &> {log}
+        scripts/extract-targets.sh -i {input.ref_fasta} -i {input.hprc_assemblies} -n {input.assembly_aliases} -c {input.loci_coordinates} -r {input.ref_fasta} -o {params.path_to_haplotypes} &> {log}
         """
 
 
@@ -69,7 +71,7 @@ rule create_loci_database:
     input:
         ref_fasta = rules.unzip_reference.output.unzipped_fasta,
         jf_counts = rules.count_k_mers_in_reference.output.jf_counts,
-        extracted_targets = f"{output}/ref/extracted_haplotypes/targets.bed"
+        extracted_targets = rules.extract_targets.output.extracted_targets
     output:
         directory("{output}/ref/loci_db/")
     log:
