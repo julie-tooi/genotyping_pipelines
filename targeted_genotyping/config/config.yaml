@@ -1,4 +1,5 @@
-graph_vcf_raw: ""
+assembly_aliases: ""
+hprc_assemblies: ""
 reference_fasta: ""
 loci_coordinates: ""
 input: ""
