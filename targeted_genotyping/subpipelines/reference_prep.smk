@@ -43,18 +43,22 @@ rule count_k_mers_in_reference:
        """
 
 
-rule filter_raw_vcf:
+rule extract_targets:
     """
-    Filter overlapping variants in pangenome reference 
+    Extract haplotypes from the set of reference assemblies 
     """
     input:
-        raw_graph = REFERENCE_GRAPH_VCF_RAW
+        hprc_assemblies = REFERENCE_ASSEMBLIES,
+        assembly_aliases = ASSEMBLY_ALIASES,
+        ref_fasta = rules.unzip_reference.output.unzipped_fasta,
+        loci_coordinates = LOCI_COORDINATES
     output:
-        filtered_graph ="{output}/ref/filtered_graph_no_overlaps.vcf.gz"
+        directory("{output}/ref/extracted_haplotypes/")
+    log:
+        "{output}/ref/extract_haplotypes.log"
     shell:
         """
-        vcfbub -l 0 -i {input.raw_graph} | bgzip > {output.filtered_graph}
-        tabix -p vcf {output.filtered_graph}
+        extract-targets.sh -i {input.ref_fasta} -i {input.hprc_assemblies} -n {input.assembly_aliases} -c {input.loci_coordinates} -r {input.ref_fasta} -o {output} &> {log}
         """
 
 
@@ -63,15 +67,14 @@ rule create_loci_database:
     Create loci database and locus haplotypes
     """
     input:
-        genome_fasta = rules.unzip_reference.output.unzipped_fasta,
-        filtered_graph = rules.filter_raw_vcf.output.filtered_graph,
+        ref_fasta = rules.unzip_reference.output.unzipped_fasta,
         jf_counts = rules.count_k_mers_in_reference.output.jf_counts,
-        loci_coordinates = LOCI_COORDINATES
+        extracted_targets = f"{output}/ref/extracted_haplotypes/targets.bed"
     output:
         directory("{output}/ref/loci_db/")
     log:
         "{output}/ref/loci_db.log"
     shell:
         """
-        locityper target -d {output} -v {input.filtered_graph} -r {input.genome_fasta} -j {input.jf_counts} -L {input.loci_coordinates} &> {log}
+        locityper target -d {output} -r {input.ref_fasta} -j {input.jf_counts} -L {input.extracted_targets} &> {log}
         """
