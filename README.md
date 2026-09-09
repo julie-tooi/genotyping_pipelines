@@ -29,6 +29,7 @@
 - jellyfish
 - vcfbub
 - tabix
+- acg
 
 #### Reference data
 
@@ -43,7 +44,7 @@ For fastq files same reference genome as used for PanGenie should be sufficient.
 
 [Script for json to csv conversion](https://github.com/tprodanov/locityper/blob/main/extra/into_csv.py)
 
-[Script for reference db preparation](https://github.com/tprodanov/locityper/blob/main/extra/extract-targets.sh)
+[Script for reference db preparation](https://github.com/tprodanov/locityper/blob/main/extra/extract-targets.sh) (additional script in scripts/innner folder is [needed](https://github.com/tprodanov/locityper/tree/main/extra/inner))
 
 [Additional script for into_csv.py](https://github.com/tprodanov/locityper/blob/main/extra/common.py)
 
