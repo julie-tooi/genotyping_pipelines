@@ -43,6 +43,7 @@ rule locityper_genotype:
         alignment = f"{INPUT_DIR}/{{sample}}.cram",
         alignment_index = rules.samtools_index.output.alignment_index,
         loci_database = rules.create_loci_database.output,
+        loci_database_augmented= rules.augment_loci_database.output.completed,
         preprocessed_aln = rules.aln_preprocessing.output
     output:
         directory("{output}/genotyping/{sample}/")

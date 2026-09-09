@@ -29,6 +29,7 @@ if LIBRARY_TYPE == "pe":
             forward_reads = f"{INPUT_DIR}/{{sample}}_1.fastq.gz",
             reverse_reads = f"{INPUT_DIR}/{{sample}}_2.fastq.gz",
             loci_database = rules.create_loci_database.output,
+            loci_database_augmented = rules.augment_loci_database.output.completed,
             preprocessed_reads = rules.reads_preprocessing.output
         output:
             directory("{output}/genotyping/{sample}/")
@@ -71,6 +72,7 @@ else:
         input:
             reads = f"{INPUT_DIR}/{{sample}}.fastq.gz",
             loci_database = rules.create_loci_database.output,
+            loci_database_augmented= rules.augment_loci_database.output.completed,
             preprocessed_reads = rules.reads_preprocessing.output
         output:
             directory("{output}/genotyping/{sample}/")
