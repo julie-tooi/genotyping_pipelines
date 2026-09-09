@@ -45,7 +45,7 @@ rule count_k_mers_in_reference:
 
 rule extract_targets:
     """
-    Extract haplotypes from the set of reference assemblies 
+    Extract haplotypes from the set of reference assemblies
     """
     input:
         hprc_assemblies = REFERENCE_ASSEMBLIES,
@@ -58,9 +58,11 @@ rule extract_targets:
         path_to_haplotypes = "{output}/ref/extracted_haplotypes/"
     log:
         "{output}/ref/extract_haplotypes.log"
+    threads:
+        THREADS_NUMBER
     shell:
         """
-        scripts/extract-targets.sh -i {input.ref_fasta} -i {input.hprc_assemblies} -n {input.assembly_aliases} -c {input.loci_coordinates} -r {input.ref_fasta} -o {params.path_to_haplotypes} &> {log}
+        scripts/extract-targets.sh -i {input.ref_fasta} -i {input.hprc_assemblies} -n {input.assembly_aliases} -c {input.loci_coordinates} -r {input.ref_fasta} -o {params.path_to_haplotypes} -@ {threads} &> {log}
         """
 
 
@@ -74,9 +76,30 @@ rule create_loci_database:
         extracted_targets = rules.extract_targets.output.extracted_targets
     output:
         directory("{output}/ref/loci_db/")
+    threads:
+        THREADS_NUMBER
     log:
         "{output}/ref/loci_db.log"
     shell:
         """
-        locityper target -d {output} -r {input.ref_fasta} -j {input.jf_counts} -L {input.extracted_targets} &> {log}
+        locityper target -d {output} -r {input.ref_fasta} -j {input.jf_counts} -L {input.extracted_targets} --threads {threads} &> {log}
+        """
+
+
+rule augment_loci_database:
+    """
+    Augment loci database by pairwise alignments between haplotypes
+    """
+    input:
+        rules.create_loci_database.output
+    output:
+        completed = "{output}/ref/loci_db.augmented.done"
+    threads:
+        THREADS_NUMBER
+    log:
+        "{output}/ref/augment_loci_db.log"
+    shell:
+        """
+        locityper augment -d {input} --threads {threads} &> {log}
+        touch {output}
         """
