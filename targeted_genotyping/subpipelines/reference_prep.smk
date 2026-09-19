@@ -51,6 +51,7 @@ rule extract_targets:
         hprc_assemblies = REFERENCE_ASSEMBLIES,
         assembly_aliases = ASSEMBLY_ALIASES,
         ref_fasta = rules.unzip_reference.output.unzipped_fasta,
+        genome_index = rules.samtools_index_reference.output.genome_index,
         loci_coordinates = LOCI_COORDINATES
     output:
         extracted_targets = "{output}/ref/extracted_haplotypes/targets.bed"
